@@ -1,0 +1,20 @@
+# Java
+backend/target/
+*.class
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+ml-service/.venv/
+ml-service/__pycache__/
+ml-service/**/*.pyc
+
+# Environment
+.env
+*.env
+
+# OS
+.DS_Store
