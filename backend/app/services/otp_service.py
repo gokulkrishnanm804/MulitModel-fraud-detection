@@ -24,7 +24,7 @@ class OtpService:
         print(f"[MOCK OTP] user_id={user_id} transaction_id={transaction_id} otp={otp}")
 
     @staticmethod
-    def verify_otp(db: Session, user_id: int, transaction_id: int, otp: str) -> bool:
+    def verify_otp(db: Session, user_id: int, transaction_id: int, otp: str) -> tuple[bool, str | None]:
         record = (
             db.query(OtpRecord)
             .filter(OtpRecord.user_id == user_id, OtpRecord.transaction_id == transaction_id)
@@ -32,13 +32,13 @@ class OtpService:
             .first()
         )
         if not record:
-            return False
+            return False, "not_found"
         if record.is_used or record.expiry_time < datetime.utcnow():
-            return False
+            return False, "expired"
         if not verify_value(otp, record.otp_hash):
-            return False
+            return False, "invalid"
 
         record.is_used = True
         db.add(record)
         db.commit()
-        return True
+        return True, None

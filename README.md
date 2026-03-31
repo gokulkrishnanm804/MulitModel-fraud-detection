@@ -1,17 +1,137 @@
 # MulitModel-fraud-detection
 
-Full-stack Explainable AI-Driven Secure Multi-Model Financial Fraud Detection System.
+Build a full-stack project titled:
 
-## Current Stack
-- Backend: Python FastAPI
-- Frontend: React (Vite)
-- Database: MySQL
-- ML Service: Python FastAPI (XGBoost, Random Forest, Isolation Forest)
+"Explainable AI-Driven Secure Multi-Model Financial Fraud Detection System"
 
-## Backend Note
-- Active backend is the `backend` folder (FastAPI).
+----------------------------------------
+TECH STACK
+----------------------------------------
+Frontend:
+- React (Vite)
+- Axios
+- React Router
+- Context API
+- Tailwind CSS (optional)
 
-## Implemented API Endpoints
+Backend:
+- Python FastAPI
+- SQLAlchemy ORM
+- JWT Authentication
+- bcrypt for password and PIN hashing
+
+Database:
+- MySQL
+
+Machine Learning:
+- XGBoost (Supervised)
+- Random Forest (Supervised)
+- Isolation Forest (Unsupervised)
+- Dataset: PaySim
+
+----------------------------------------
+PROJECT REQUIREMENTS
+----------------------------------------
+
+USER MODULE:
+- Register and login users (JWT authentication)
+- First login must require setting a 4-digit transaction PIN
+- Store hashed password and PIN
+- Maintain user balance
+- Allow multiple users
+
+TRANSACTION MODULE:
+- Users can send money to other users
+- Support 3 transaction types:
+  - UPI
+  - CARD
+  - ACCOUNT TRANSFER
+- Before transaction:
+  - Validate PIN
+  - Accept required details
+- Update balances after transaction
+- Store all transaction records
+
+FRAUD DETECTION MODULE:
+- Train models using PaySim dataset
+- Perform feature engineering:
+  - hour = step % 24
+  - is_new_beneficiary (based on past transactions)
+  - amount_deviation (compare with avg user amount)
+  - balance_error = oldbalanceOrg - amount - newbalanceOrig
+- Use:
+  - XGBoost
+  - Random Forest
+  - Isolation Forest
+- Output fraud probability (0–1)
+
+RISK ENGINE:
+- Define risk levels:
+  - LOW (<0.3)
+  - MEDIUM (0.3–0.7)
+  - HIGH (>0.7)
+- Combine:
+  - ML prediction
+  - Rule-based checks:
+    - High amount
+    - New beneficiary
+    - Unusual transaction pattern
+
+OTP VERIFICATION:
+- If risk is MEDIUM or HIGH:
+  - Generate 6-digit OTP
+  - Store OTP in database with expiry (5 minutes)
+  - Simulate sending OTP (console/log)
+- Verify OTP before completing transaction
+- If OTP correct → SUCCESS
+- If OTP wrong/expired → FAILED
+
+EXPLAINABLE AI:
+- Provide reasons for fraud detection:
+  - High amount
+  - New beneficiary
+  - Unusual behavior
+- Return reasons to frontend
+- (Optional) Use SHAP for feature importance
+
+ADMIN MODULE:
+- View all users
+- View all transactions
+- View fraud transactions (risk_score > 0.7)
+- Block/unblock users
+- View fraud logs and reasons
+
+----------------------------------------
+DATABASE DESIGN (MYSQL)
+----------------------------------------
+
+Users:
+- id, name, email, phone, password_hash, pin_hash, balance, is_blocked, created_at
+
+Transactions:
+- id, sender_id, receiver_id, amount, type, risk_score, status (PENDING, SUCCESS, FAILED), reason, created_at
+
+OTP:
+- id, user_id, otp_code, expiry_time, is_verified
+
+Fraud Logs:
+- id, transaction_id, risk_score, reasons, created_at
+
+Beneficiaries:
+- id, user_id, beneficiary_id
+
+----------------------------------------
+BACKEND (FASTAPI)
+----------------------------------------
+
+- Use modular structure:
+  - routers/
+  - models/
+  - schemas/
+  - services/
+  - utils/
+
+- Implement APIs:
 
 Auth:
 - POST /register
@@ -23,73 +143,97 @@ Transaction:
 - POST /verify-otp
 
 Admin:
-- GET /dashboard
-- GET /transactions
-- POST /block-user
+- GET /admin/users
+- GET /admin/transactions
+- POST /admin/block-user
 
-Health:
-- GET /health
+----------------------------------------
+TRANSACTION WORKFLOW
+----------------------------------------
 
-## Process Split (Phased)
+1. User logs in
+2. User initiates transfer
+3. Validate PIN
+4. Perform feature engineering
+5. Call ML models
+6. Get fraud probability
+7. Apply risk rules
 
-Part 1 completed:
-- Python backend scaffold with clean modules
-- React frontend scaffold
-- MySQL schema baseline
+IF LOW RISK:
+→ Complete transaction immediately
 
-Part 2 completed:
-- JWT auth flow + PIN setup
-- Transfer flow + risk scoring call to ML service
-- OTP generation and verification flow
-- Admin endpoints for dashboard, transactions, and block/unblock
+IF MEDIUM/HIGH RISK:
+→ Generate OTP
+→ Ask user to verify
 
-Part 3 (next):
-- Upgrade risk engine and explainable decision responses
-- Add stricter per-type transaction validation rules
+IF OTP SUCCESS:
+→ Complete transaction
 
-Part 4 (after PaySim upload):
-- Train XGBoost, Random Forest, Isolation Forest on PaySim
-- Replace placeholder ML scoring with model artifacts
+IF OTP FAIL:
+→ Reject transaction
 
-## Project Structure
+----------------------------------------
+FRONTEND (REACT)
+----------------------------------------
 
-- backend (FastAPI backend)
-- ml-service (ML FastAPI service)
-- frontend (React Vite app)
-- database/schema.sql
+Pages:
+- /login
+- /register
+- /dashboard
+- /transfer
+- /otp
+- /admin
 
-## Run Instructions
+Features:
+- Login/Register UI
+- Dashboard showing balance
+- Transfer form (receiver, amount, type, PIN)
+- OTP verification screen
+- Transaction result screen
+- Show fraud explanation (reasons)
+- Admin dashboard (users + transactions)
 
-1. Database
-- Start MySQL and create database `fraud_detection`.
-- Run `database/schema.sql`.
+----------------------------------------
+API INTEGRATION
+----------------------------------------
 
-2. Backend (FastAPI)
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
-```
+Use Axios:
+- Attach JWT token in headers
+- Handle responses:
+  - SUCCESS
+  - OTP_REQUIRED
+  - FAILED
 
-3. ML Service (FastAPI)
-```bash
-cd ml-service
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-```
+----------------------------------------
+EXPECTED OUTPUT
+----------------------------------------
 
-4. Frontend (React)
-```bash
-cd frontend
-npm install
-npm run dev
-```
+Generate:
+- FastAPI backend (complete structure)
+- MySQL schema and SQLAlchemy models
+- ML training code (PaySim dataset)
+- Fraud detection service
+- OTP service
+- React frontend with all pages
+- API integration between frontend and backend
 
-## PaySim Dataset Timing
+----------------------------------------
+SPECIAL REQUIREMENT
+----------------------------------------
 
-Upload PaySim later as planned. Once uploaded, training implementation will be completed in `ml-service/app/training/train_models.py` and the inference code will be switched from placeholder scoring to trained model artifacts.
+IMPORTANT SCENARIO:
+If a user sends a high amount to a new beneficiary from a new pattern (like emergency case):
+
+- DO NOT directly block transaction
+- Mark as HIGH RISK
+- Trigger OTP verification
+- Allow transaction if OTP is verified
+
+----------------------------------------
+GOAL
+----------------------------------------
+
+Build a real-world financial fraud detection system that:
+- Uses machine learning + rule-based logic
+- Provides explainable AI output
+- Uses OTP for secure verification instead of blocking legitimate users

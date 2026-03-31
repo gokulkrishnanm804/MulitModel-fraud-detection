@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const client = axios.create({
-  baseURL: "http://localhost:8080"
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
 });
 
 export const setToken = (token) => {
@@ -20,3 +20,6 @@ export const verifyOtp = (payload) => client.post("/verify-otp", payload);
 export const dashboard = () => client.get("/dashboard");
 export const transactions = () => client.get("/transactions");
 export const blockUser = (payload) => client.post("/block-user", payload);
+export const adminUsers = () => client.get("/users");
+export const fraudTransactions = () => client.get("/fraud-transactions");
+export const fraudLogs = () => client.get("/fraud-logs");

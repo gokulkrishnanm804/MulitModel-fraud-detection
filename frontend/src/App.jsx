@@ -1,24 +1,53 @@
-import { useState } from "react";
-import AuthPanel from "./pages/AuthPanel";
-import TransactionPanel from "./pages/TransactionPanel";
-import AdminPanel from "./pages/AdminPanel";
-import ResponseBox from "./components/ResponseBox";
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminPage from "./pages/AdminPage";
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import OtpPage from "./pages/OtpPage";
+import RegisterPage from "./pages/RegisterPage";
+import TransferPage from "./pages/TransferPage";
 
 export default function App() {
-  const [response, setResponse] = useState(null);
-  const [token, setToken] = useState("");
-
   return (
-    <div className="container">
-      <h1>Secure Multi-Model Fraud Detection</h1>
-      <p className="small">FastAPI backend + ML service + React frontend</p>
-      <div className="grid">
-        <AuthPanel onResponse={setResponse} onToken={setToken} />
-        <TransactionPanel onResponse={setResponse} />
-        <AdminPanel onResponse={setResponse} />
-        <ResponseBox title="Latest API Response" data={response} />
-      </div>
-      <p className="small">Token loaded: {token ? "yes" : "no"}</p>
-    </div>
+    <Layout>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/transfer"
+          element={
+            <ProtectedRoute>
+              <TransferPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/otp"
+          element={
+            <ProtectedRoute>
+              <OtpPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<LoginPage />} />
+      </Routes>
+    </Layout>
   );
 }

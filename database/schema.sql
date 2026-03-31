@@ -38,7 +38,28 @@ CREATE TABLE IF NOT EXISTS otp (
     CONSTRAINT fk_otp_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS beneficiaries (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    beneficiary_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_beneficiaries_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_beneficiaries_beneficiary FOREIGN KEY (beneficiary_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS fraud_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    transaction_id BIGINT NOT NULL,
+    risk_score DECIMAL(5,4) NOT NULL,
+    reasons VARCHAR(512),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_fraud_logs_transaction FOREIGN KEY (transaction_id) REFERENCES transactions(id)
+);
+
 CREATE INDEX idx_transactions_sender ON transactions(sender_id);
 CREATE INDEX idx_transactions_receiver ON transactions(receiver_id);
 CREATE INDEX idx_transactions_status ON transactions(status);
 CREATE INDEX idx_otp_user_expiry ON otp(user_id, expiry_time);
+CREATE INDEX idx_beneficiaries_user ON beneficiaries(user_id);
+CREATE INDEX idx_beneficiaries_beneficiary ON beneficiaries(beneficiary_id);
+CREATE INDEX idx_fraud_logs_transaction ON fraud_logs(transaction_id);

@@ -21,6 +21,24 @@ def transactions(db: Session = Depends(get_db), _=Depends(require_admin)):
     return {"message": "Transactions fetched", "data": data}
 
 
+@router.get("/users")
+def users(db: Session = Depends(get_db), _=Depends(require_admin)):
+    data = AdminService.list_users(db)
+    return {"message": "Users fetched", "data": data}
+
+
+@router.get("/fraud-transactions")
+def fraud_transactions(db: Session = Depends(get_db), _=Depends(require_admin)):
+    data = AdminService.fraud_transactions(db)
+    return {"message": "Fraud transactions fetched", "data": data}
+
+
+@router.get("/fraud-logs")
+def fraud_logs(db: Session = Depends(get_db), _=Depends(require_admin)):
+    data = AdminService.fraud_logs(db)
+    return {"message": "Fraud logs fetched", "data": data}
+
+
 @router.post("/block-user")
 def block_user(request: BlockUserRequest, db: Session = Depends(get_db), _=Depends(require_admin)):
     try:
