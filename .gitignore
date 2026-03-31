@@ -26,4 +26,4 @@ frontend/dist/
 # OS
 .DS_Store
 
-backend/data/
+backend/data/*.csv
